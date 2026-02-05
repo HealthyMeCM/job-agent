@@ -1,0 +1,79 @@
+# Data sources for job collection
+# All sources must be ToS-safe (public APIs or public web pages)
+
+# ATS (Applicant Tracking System) job boards
+# These have structured APIs or predictable page formats
+ats_sources:
+  greenhouse:
+    enabled: true
+    # List of company board IDs (found in their careers URL)
+    companies:
+      - board_id: "anthropic"
+        name: "Anthropic"
+      - board_id: "openai"
+        name: "OpenAI"
+      # Add more: board_id is the subdomain in jobs.greenhouse.io/{board_id}
+    rate_limit_seconds: 2
+
+  lever:
+    enabled: true
+    companies:
+      - board_id: "figma"
+        name: "Figma"
+      # Add more: board_id is the subdomain in jobs.lever.co/{board_id}
+    rate_limit_seconds: 2
+
+  ashby:
+    enabled: true
+    companies:
+      - board_id: "anthropic"
+        name: "Anthropic"
+      # Add more: check company careers page for Ashby integration
+    rate_limit_seconds: 2
+
+# Custom careers pages (HTML scraping required)
+custom_careers_pages:
+  enabled: true
+  companies:
+    - name: "Norm Ai"
+      url: "https://www.norm.ai/careers/"
+    #   # CSS selector for job listings (optional, uses heuristics if not provided)
+    #   selector: ".job-listing"
+  rate_limit_seconds: 3
+
+# Curated job boards (Phase 2)
+curated_boards:
+  enabled: false
+  sources:
+    - name: "YC Work at a Startup"
+      url: "https://www.workatastartup.com/"
+      type: "yc_waas"
+    - name: "AI Jobs Board"
+      url: "https://aijobs.net/"
+      type: "generic"
+
+# Signal sources (Phase 2)
+signal_sources:
+  github:
+    enabled: false
+    # Track release activity for these orgs
+    orgs: []
+
+  news:
+    enabled: false
+    # Keywords to monitor for funding/hiring signals
+    keywords:
+      - "raises series"
+      - "funding round"
+      - "hiring spree"
+
+# Global settings
+global:
+  # User agent for requests
+  user_agent: "JobAgent/1.0 (Personal job search assistant)"
+  # Default timeout for requests (seconds)
+  timeout_seconds: 30
+  # Respect robots.txt
+  respect_robots_txt: true
+  # Maximum concurrent requests
+  max_concurrent: 3
