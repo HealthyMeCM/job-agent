@@ -1,0 +1,49 @@
+# Lead sources configuration
+# These are sources for discovering potential job leads and company signals
+# NOT a job posting scraper - we're looking for signals of opportunity
+
+sources:
+  # Example: Anthropic careers page (public)
+  - source_id: anthropic_careers
+    source_type: careers_page
+    url: https://www.anthropic.com/careers
+    enabled: true
+    rate_limit_rps: 0.5
+    timeout_seconds: 30
+    max_retries: 3
+    follow_links: false
+    metadata:
+      company: Anthropic
+      priority: high
+      notes: "AI safety company, key target"
+
+  # Example: OpenAI careers (public)
+  - source_id: openai_careers
+    source_type: careers_page
+    url: https://openai.com/careers
+    enabled: true
+    rate_limit_rps: 0.5
+    timeout_seconds: 30
+    max_retries: 3
+    follow_links: false
+    metadata:
+      company: OpenAI
+      priority: high
+
+  # Example: Greenhouse ATS board (common pattern)
+  # - source_id: example_greenhouse
+  #   source_type: ats_board
+  #   url: https://boards.greenhouse.io/examplecompany
+  #   enabled: false
+  #   rate_limit_rps: 1.0
+  #   metadata:
+  #     ats_provider: greenhouse
+
+  # Example: Lever ATS board
+  # - source_id: example_lever
+  #   source_type: ats_board
+  #   url: https://jobs.lever.co/examplecompany
+  #   enabled: false
+  #   rate_limit_rps: 1.0
+  #   metadata:
+  #     ats_provider: lever

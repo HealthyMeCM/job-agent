@@ -1,13 +1,12 @@
-"""
-Data collectors for Job Agent.
+"""Collectors: source planning, HTTP client, and collection adapters."""
 
-Each collector is responsible for fetching data from a specific source
-(ATS platform, careers page, etc.) and returning normalized RawJobPosting objects.
-"""
-
-from collectors.base import BaseCollector, RawJobPosting
+from collectors.planner import FetchTask, plan_sources
+from collectors.collector import collect
+from collectors.http_client import HttpClient
 
 __all__ = [
-    "BaseCollector",
-    "RawJobPosting",
+    "FetchTask",
+    "plan_sources",
+    "collect",
+    "HttpClient",
 ]
