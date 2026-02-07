@@ -2,12 +2,13 @@
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
-from collectors.planner import FetchTask
 from collectors.http_client import HttpClient
+from collectors.planner import FetchTask
+from core import verbose
 from core.context import RunContext
-from core.ids import normalize_url, content_hash
+from core.ids import content_hash, normalize_url
 from evidence.snapshot import RawSnapshot, SnapshotStore
 
 
@@ -22,7 +23,14 @@ async def _collect_task(
     Returns:
         Tuple of (snapshot, error_message)
     """
+    verbose.step(f"Fetching {task.source_id}...")
     result = await client.fetch(task.url)
+
+    status_label = f"{result.status_code} OK" if result.success else f"{result.status_code} FAIL"
+    size_kb = len(result.content) / 1024
+    verbose.detail(f"{status_label} | {size_kb:.1f}kb | {result.duration_ms:.0f}ms")
+    if result.error:
+        verbose.detail(f"Error: {result.error}")
 
     snapshot = RawSnapshot(
         run_id=run_id,
@@ -30,7 +38,7 @@ async def _collect_task(
         source_type=task.source_type,
         original_url=task.original_url,
         canonical_url=normalize_url(task.url),
-        fetched_at=datetime.now(timezone.utc),
+        fetched_at=datetime.now(UTC),
         status_code=result.status_code,
         success=result.success,
         content_hash=content_hash(result.content) if result.content else None,
@@ -68,6 +76,7 @@ async def collect(
         List of successfully stored snapshots
     """
     ctx.start_stage("collect", items_in=len(tasks))
+    verbose.stage("Collect", "fetch URLs and store raw snapshots")
 
     snapshots: list[RawSnapshot] = []
     errors: list[str] = []
@@ -97,6 +106,16 @@ async def collect(
         items_out=len(snapshots),
         errors=errors,
         status="completed" if snapshots else "failed",
+    )
+
+    stage_log = next(
+        (sl for sl in ctx.stage_logs if sl.stage == "collect"), None
+    )
+    verbose.stage_end(
+        "collect",
+        items_out=len(snapshots),
+        errors=len(errors),
+        duration=stage_log.duration_seconds if stage_log and stage_log.duration_seconds else 0.0,
     )
 
     return snapshots

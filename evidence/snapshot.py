@@ -3,13 +3,14 @@
 from __future__ import annotations
 
 import json
+import uuid
 from abc import ABC, abstractmethod
 from datetime import datetime
 from pathlib import Path
-from typing import Any
-import uuid
 
 from pydantic import BaseModel, Field
+
+from core import verbose
 
 
 class RawSnapshot(BaseModel):
@@ -112,6 +113,11 @@ class FileSnapshotStore(SnapshotStore):
         meta_path = self._meta_path(snapshot.run_id, snapshot.snapshot_id)
         with open(meta_path, "w") as f:
             json.dump(snapshot.model_dump(mode="json"), f, indent=2, default=str)
+
+        content_kb = len(content) / 1024
+        verbose.detail(
+            f"Snapshot saved → {snapshot.snapshot_id} ({content_kb:.1f}kb)"
+        )
 
         return snapshot
 

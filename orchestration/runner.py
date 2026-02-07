@@ -3,14 +3,16 @@
 from __future__ import annotations
 
 import asyncio
+import time
 from pathlib import Path
 from typing import Any
 
+from collectors.collector import collect
+from collectors.planner import plan_sources
+from core import verbose
 from core.config import Settings, SourcesConfig, load_config
 from core.context import RunContext, RunStatus
-from collectors.planner import plan_sources, FetchTask
-from collectors.collector import collect
-from evidence.snapshot import RawSnapshot, FileSnapshotStore
+from evidence.snapshot import FileSnapshotStore
 
 
 async def run_checkpoint_a_async(
@@ -36,11 +38,23 @@ async def run_checkpoint_a_async(
     Returns:
         RunContext with metrics and stage logs
     """
+    run_start = time.monotonic()
+
     # Stage 0: Boot
     if settings is None or sources is None:
         settings, sources = load_config(sources_path)
 
+    verbose.configure(settings.verbose)
+
     ctx = RunContext.boot(settings, sources, run_id)
+
+    verbose.header(f"Pipeline Run {ctx.run_id}")
+    verbose.stage("Boot", "initialize run context and save config")
+    verbose.step(f"Config loaded (verbose={settings.verbose}, dry_run={settings.dry_run})")
+    enabled = sum(1 for s in sources.sources if s.enabled)
+    verbose.step(f"Sources: {len(sources.sources)} configured, {enabled} enabled")
+    verbose.step(f"Config snapshot saved → {ctx.config_snapshot_path}")
+    verbose.vprint("")
 
     try:
         # Stage 1: Plan sources
@@ -62,6 +76,12 @@ async def run_checkpoint_a_async(
         if ctx.stage_logs:
             ctx.stage_logs[-1].errors.append(str(e))
         raise
+
+    total = time.monotonic() - run_start
+    verbose.header(
+        f"Done: {ctx.metrics.num_snapshots_success} snapshots, "
+        f"{ctx.metrics.num_snapshots_failed} failures ({total:.2f}s)"
+    )
 
     return ctx
 

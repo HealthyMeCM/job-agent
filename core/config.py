@@ -6,7 +6,7 @@ from pathlib import Path
 from typing import Any
 
 import yaml
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -48,7 +48,27 @@ class Settings(BaseSettings):
 
     # Runtime
     dry_run: bool = False
+    verbose: int = 0
     log_level: str = "INFO"
+
+    @field_validator("verbose", mode="before")
+    @classmethod
+    def _coerce_verbose(cls, v: Any) -> int:
+        if isinstance(v, bool):
+            return 2 if v else 0
+        if isinstance(v, str):
+            low = v.strip().lower()
+            # Try numeric first so "1", "2", "3" stay as-is
+            try:
+                return int(low)
+            except ValueError:
+                pass
+            if low in ("true", "yes"):
+                return 2
+            if low in ("false", "no", ""):
+                return 0
+            return 0
+        return int(v)
 
     # HTTP client defaults
     default_timeout: int = 30

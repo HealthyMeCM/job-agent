@@ -31,19 +31,19 @@ sources:
       priority: high
 
   # Example: Greenhouse ATS board (common pattern)
-  # - source_id: example_greenhouse
-  #   source_type: ats_board
-  #   url: https://boards.greenhouse.io/examplecompany
-  #   enabled: false
-  #   rate_limit_rps: 1.0
-  #   metadata:
-  #     ats_provider: greenhouse
+  - source_id: example_greenhouse
+    source_type: ats_board
+    url: https://boards.greenhouse.io/examplecompany
+    enabled: false
+    rate_limit_rps: 1.0
+    metadata:
+      ats_provider: greenhouse
 
   # Example: Lever ATS board
-  # - source_id: example_lever
-  #   source_type: ats_board
-  #   url: https://jobs.lever.co/examplecompany
-  #   enabled: false
-  #   rate_limit_rps: 1.0
-  #   metadata:
-  #     ats_provider: lever
+  - source_id: example_lever
+    source_type: ats_board
+    url: https://jobs.lever.co/examplecompany
+    enabled: false
+    rate_limit_rps: 1.0
+    metadata:
+      ats_provider: lever

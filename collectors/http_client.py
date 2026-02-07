@@ -15,6 +15,8 @@ from tenacity import (
     wait_exponential,
 )
 
+from core import verbose
+
 
 @dataclass
 class FetchResult:
@@ -48,7 +50,9 @@ class RateLimiter:
         elapsed = now - self._last_request
 
         if elapsed < min_interval:
-            await asyncio.sleep(min_interval - elapsed)
+            wait_time = min_interval - elapsed
+            verbose.detail(f"Rate limit wait {wait_time:.1f}s")
+            await asyncio.sleep(wait_time)
 
         self._last_request = time.monotonic()
 
@@ -124,12 +128,18 @@ class HttpClient:
         if not self._client:
             raise RuntimeError("Client not initialized. Use 'async with' context.")
 
+        attempt = 0
+
         @retry(
             stop=stop_after_attempt(self.max_retries),
             wait=wait_exponential(multiplier=1, min=1, max=10),
             retry=retry_if_exception_type((httpx.TimeoutException, httpx.NetworkError)),
         )
         async def _do_fetch() -> httpx.Response:
+            nonlocal attempt
+            attempt += 1
+            if attempt > 1:
+                verbose.detail(f"Retry {attempt - 1}/{self.max_retries - 1}")
             return await self._client.get(url)  # type: ignore
 
         return await _do_fetch()
