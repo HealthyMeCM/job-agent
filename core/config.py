@@ -45,6 +45,10 @@ class Settings(BaseSettings):
     # Storage
     snapshots_dir: str = "./data/snapshots"
     config_snapshots_dir: str = "./data/config_snapshots"
+    parsed_dir: str = "./data/parsed"
+
+    # LLM
+    llm_model: str = "gpt-4o-mini"
 
     # Runtime
     dry_run: bool = False

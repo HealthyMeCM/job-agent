@@ -23,6 +23,7 @@ dependencies = [
     "httpx>=0.26",
     # LLM / AI
     "openai>=1.10",
+    "litellm>=1.0",
     "langchain>=0.1",
     "langgraph>=0.0.20",
     "langfuse>=2.0",
@@ -55,7 +56,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
-packages = ["app", "collectors", "pipelines", "schemas"]
+packages = ["app", "collectors", "core", "evidence", "orchestration", "parsing", "pipelines", "schemas", "storage"]
 
 [tool.ruff]
 target-version = "py311"
@@ -80,7 +81,7 @@ ignore = [
 ]
 
 [tool.ruff.lint.isort]
-known-first-party = ["app", "collectors", "pipelines", "schemas"]
+known-first-party = ["app", "collectors", "core", "evidence", "orchestration", "parsing", "pipelines", "schemas", "storage"]
 
 [tool.mypy]
 python_version = "3.11"
@@ -94,6 +95,7 @@ plugins = ["pydantic.mypy"]
 module = [
     "langfuse.*",
     "langgraph.*",
+    "litellm.*",
     "streamlit.*",
 ]
 ignore_missing_imports = true
